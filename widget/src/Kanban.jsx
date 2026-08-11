@@ -85,7 +85,7 @@ export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtr
                                     <div className="flex flex-col gap-2">
                                         {cartesTriees.map((record) => (
                                             <CarteDraggable key={record.id} id={record.id} onClick={() => setSelected(record)}>
-                                                <Carte record={record} colonnes={colonnes} colInfos={colInfos} />
+                                                <Carte record={record} colonnes={colonnes} colInfos={colInfos} max={4}/>
                                             </CarteDraggable>  
                                     ))}
                                 </div>
