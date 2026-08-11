@@ -16,6 +16,7 @@ function App() {
   const [kanbanVues, setKanbanVues] = useState([])
   const [titre, setTitre] = useState('')
   const [editionTitre, setEdititionTitre] = useState(false)
+  const [editionVue, setEditionVue] = useState(null)
 
   useEffect(() => {
     grist.ready({ requiredAccess: 'full'})
@@ -75,7 +76,7 @@ function App() {
     {id: "tableau", titre:"Tableau", type:"tableau"},
     ...kanbanVues.map((v) => ({
       id: "kanban-" + v.id,
-      titre: "Par " + (colInfos[v.champ]?.label || v.champ),
+      titre: v.nom || "Par " + (colInfos[v.champ]?.label || v.champ),
       vueId: v.id,
       type:"kanban",
       champ: v.champ,
@@ -146,7 +147,20 @@ function App() {
       <Tabs defaultValue={vues[0].id}>
         <TabsList>
           {vues.map((vue) => (
-          <TabsTrigger key={vue.id} value={vue.id}>{vue.titre}</TabsTrigger>
+          <TabsTrigger key={vue.id} value={vue.id} onDoubleClick={() => { if (vue.vueId) setEditionVue(vue.vueId) }}>
+            {editionVue === vue.vueId ? (
+              <input
+                autoFocus
+                defaultValue={vue.titre}
+                onClick={(e) => e.stopPropagation()}
+                onBlur={(e) => { modifierVue(vue.vueId, { nom: e.target.value }); setEditionVue(null) }}
+                onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur() }}
+                className="w-28 border rounded px-1"
+              />
+            ) : (
+            vue.titre
+            )}
+          </TabsTrigger>
           ))}
         </TabsList>
 

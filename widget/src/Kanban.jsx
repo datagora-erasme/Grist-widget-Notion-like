@@ -77,7 +77,7 @@ export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtr
                         })
                         : cartes
                         return(
-                            <ColonneDroppable key={valeur} id={valeur} className="flex-1 min-w-[200px] rounded-lg p-2" style={{ backgroundColor: couleur + '22'}}>
+                            <ColonneDroppable key={valeur} id={valeur} className="flex-1 min-w-[250px] rounded-lg p-2" style={{ backgroundColor: couleur + '22'}}>
                                 <div className="flex items-center gap-2 mb-2">
                                     <Badge style={{ backgroundColor: couleur, color: opt.textColor || '#fff' }}>{valeur}</Badge>
                                     <span className="text-sm font-semibold" style={{ color: couleur }}>{cartes.length}</span>
