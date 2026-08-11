@@ -7,7 +7,6 @@ import { formaterValeur } from './formaterValeur'
 import { Tableau } from './Tableau'
 import { Carte } from './Carte'
 import { Kanban } from './Kanban'
-import { Galerie } from './Galerie'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu"
 import { useState, useEffect } from 'react'
 
@@ -30,8 +29,21 @@ function App() {
       const tableId = await grist.getTable().getTableId()
       const tables = await grist.docApi.fetchTable('_grist_Tables')
       const cols = await grist.docApi.fetchTable('_grist_Tables_column')
+      const fields = await grist.docApi.fetchTable('_grist_Views_section_field')
 
-      const tableRef = tables.id[tables.tableId.indexOf(tableId)]
+      const idx = tables.tableId.indexOf(tableId)
+      const tableRef = tables.id[idx]
+      const rawSectionRef = tables.rawViewSectionRef[idx]
+
+      const colRefToId = {}
+      cols.id.forEach((_, i) => { colRefToId[cols.id[i]] = cols.colId[i] })
+
+      const ordre = {}
+      fields.id.forEach((_, i) => {
+        if (fields.parentId[i] === rawSectionRef) {
+          ordre[colRefToId[fields.colRef[i]]] = fields.parentPos[i]
+        }
+      })
 
       const infos = {}
       cols.id.forEach((_,i) => {
@@ -43,6 +55,7 @@ function App() {
             type: cols.type[i],
             choiceOptions: options.choiceOptions || {},
             choices: options.choices || [],
+            pos: ordre[cols.colId[i]] ?? 9999,
           }
         }
       })
@@ -53,12 +66,13 @@ function App() {
 
 
   const colonnes = records.length > 0
-    ? Object.keys(records[0]).filter((nom) => nom !== 'id')
+    ? Object.keys(records[0])
+      .filter((nom) => nom !== 'id')
+      .sort((a,b) => (colInfos[a]?.pos ?? 9999) - (colInfos[b]?.pos ?? 9999))
     : []
 
   const vues = [
     {id: "tableau", titre:"Tableau", type:"tableau"},
-    {id: "galerie", titre:"Galerie", type:"galerie"},
     ...kanbanVues.map((v) => ({
       id: "kanban-" + v.id,
       titre: "Par " + (colInfos[v.champ]?.label || v.champ),
@@ -139,7 +153,6 @@ function App() {
         {vues.map((vue) => (
           <TabsContent key={vue.id} value={vue.id}>
             {vue.type === "tableau" && <Tableau records={records} colonnes={colonnes} colInfos={colInfos} />}
-            {vue.type === "galerie" && <Galerie records={records} colonnes={colonnes} colInfos={colInfos} />}
             {vue.type === "kanban" && (
             <>
               <details className="mb-2">
