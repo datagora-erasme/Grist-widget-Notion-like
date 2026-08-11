@@ -17,6 +17,7 @@ function App() {
   const [titre, setTitre] = useState('')
   const [editionTitre, setEdititionTitre] = useState(false)
   const [editionVue, setEditionVue] = useState(null)
+  const [ordreVues, setOrdreVues] = useState([])
 
   useEffect(() => {
     grist.ready({ requiredAccess: 'full'})
@@ -24,6 +25,7 @@ function App() {
     grist.onOptions((options) => {
       setKanbanVues(options?.kanbanVues || [])
       setTitre(options?.titre || '')
+      setOrdreVues(options?.ordreVues || [])
     })
 
   async function chargerColonnes() {
@@ -91,6 +93,16 @@ function App() {
     setKanbanVues(nouvelles)
     grist.setOption('kanbanVues', nouvelles)
   }
+  function sauverOrdre(nouvel) {
+    setOrdreVues(nouvel)
+    grist.setOption('ordreVues', nouvel)
+  }
+  function deplacerVue(index, dir) {
+    const ids = vues.map((v) => v.id)
+    const j = index + dir
+    ;[ids[index], ids[j]] = [ids[j], ids[index]]
+    sauverOrdre(ids)
+  }
   function ajouterVue() {
     sauverVues([...kanbanVues, { id: Date.now(), champ: colonnes[0] }])
   }
@@ -140,6 +152,16 @@ function App() {
               <Button variant="destructive" size="sm" onClick={() => supprimerVue(vue.id)}>Supprimer</Button>
             </div>
           ))}
+          <div className="mt-3">
+            <div className="text-sm font-semibold mb-1">Ordre des onglets</div>
+            {vues.map((vue, i) => (
+              <div key={vue.id} className="flex items-center gap-2 mb-1">
+                <span className="text-sm flex-1">{vue.titre}</span>
+                <Button size="sm" variant="outline" disabled={i === 0} onClick={() => deplacerVue(i, -1)}>↑</Button>
+                <Button size="sm" variant="outline" disabled={i === vues.length - 1} onClick={() => deplacerVue(i, 1)}>↓</Button>
+              </div>
+            ))}
+          </div>
           <Button size="sm" onClick={ajouterVue}>+ Ajouter une vue kanban</Button>
         </div>
       </details>

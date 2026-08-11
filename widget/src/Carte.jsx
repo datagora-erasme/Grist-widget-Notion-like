@@ -1,9 +1,10 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { formaterValeur } from "./formaterValeur"
 
-export function Carte({ record, colonnes, colInfos, max }) {
+export function Carte({ record, colonnes, colInfos, max, forces = [] }) {
     const [titre, ...autres] = colonnes
-    const champs = max ? autres.slice(0, max) : autres
+    let champs = max ? autres.slice(0, max) : autres
+    forces.forEach((f) => { if (f && f !== titre && !champs.includes(f)) champs = [...champs, f]})
 
     return (
         <Card>
