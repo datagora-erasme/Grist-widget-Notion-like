@@ -74,7 +74,7 @@ function App() {
       .sort((a,b) => (colInfos[a]?.pos ?? 9999) - (colInfos[b]?.pos ?? 9999))
     : []
 
-  const vues = [
+  const baseVues = [
     {id: "tableau", titre:"Tableau", type:"tableau"},
     ...kanbanVues.map((v) => ({
       id: "kanban-" + v.id,
@@ -88,6 +88,12 @@ function App() {
       filtreVals: v.filtreVals,
     })),
   ]
+
+  const vues = [...baseVues].sort((a, b) => {
+    const ia = ordreVues.indexOf(a.id)
+    const ib = ordreVues.indexOf(b.id)
+    return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib)
+  })
 
   function sauverVues(nouvelles){
     setKanbanVues(nouvelles)
