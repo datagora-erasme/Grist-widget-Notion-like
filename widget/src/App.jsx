@@ -18,6 +18,7 @@ function App() {
   const [editionTitre, setEdititionTitre] = useState(false)
   const [editionVue, setEditionVue] = useState(null)
   const [ordreVues, setOrdreVues] = useState([])
+  const [ongletActif, setOngletActif] = useState(null)
 
   useEffect(() => {
     grist.ready({ requiredAccess: 'full'})
@@ -172,7 +173,7 @@ function App() {
         </div>
       </details>
 
-      <Tabs defaultValue={vues[0].id}>
+      <Tabs value={ongletActif ?? vues[0]?.id} onValueChange={(v) => setOngletActif(v)}>
         <TabsList>
           {vues.map((vue) => (
           <TabsTrigger key={vue.id} value={vue.id} onDoubleClick={() => { if (vue.vueId) setEditionVue(vue.vueId) }}>
