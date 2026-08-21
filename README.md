@@ -4,7 +4,7 @@ Un widget personnalisé pour [Grist](https://www.getgrist.com/) qui affiche une 
 
 Il permet de partager des "vues bibliothèque" (comme sur Notion) à des personnes internes ou externes, **sans leur donner accès à l'espace de travail Grist**.
 
-🔗 **Version en ligne :** https://monabzh.github.io/Grist-widget-Notion-like/
+🔗 **Version en ligne :** https://datagora-erasme.github.io/Grist-widget-Notion-like/
 
 ---
 ## Aperçu du widget
