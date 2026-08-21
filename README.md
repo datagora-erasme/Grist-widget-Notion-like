@@ -21,7 +21,7 @@ Bien penser à **enregistrer** pour que les modifications de vues / filtre soien
 1. Sur une page Grist : **+ Ajouter -> Ajouter une page**, sélectionner la table en données sources et **Personnalisé** en type.
 2. Dans le panneau : choisir **Ajouter votre propre widget "URL personnalisé"** et coller :
    ```
-   https://monabzh.github.io/Grist-widget-Notion-like/
+   https://datagora-erasme.github.io/Grist-widget-Notion-like/
    ```
 3. Règle **Option de la vue -> Niveau d'accès -> Accès complet au document** (nécessaire pour lire les noms de
    colonnes, les couleurs, et pour le glisser-déposer).
