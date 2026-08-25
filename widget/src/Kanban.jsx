@@ -7,10 +7,10 @@ import { useState } from "react"
 
 const PALETTE = ['#64748B', '#9683C4', '#49cca0', '#cc67e0', '#C99A57', '#B87BA0', '#5CA1A6', '#C58A6B']
 
-function CarteDraggable({ id, children, onClick }) {
-    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({id})
+function CarteDraggable({ id, children, onClick, disabled }) {
+    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({id, disabled })
     return (
-        <div ref={setNodeRef} {...listeners} {...attributes} onClick={onClick} className="cursor-grab" style= {{ opacity: isDragging ? 0.4 : 1 }}>
+        <div ref={setNodeRef} {...listeners} {...attributes} onClick={onClick} className={disabled ? "cursor-pointer": "cursor-grab"} style= {{ opacity: isDragging ? 0.4 : 1 }}>
             {children}
         </div>
     )
@@ -48,6 +48,7 @@ export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtr
     })
 
     const choiceOptions = colInfos[champ]?.choiceOptions || {}
+    const dragDesactive = colInfos[champ]?.type === 'ChoiceList'
 
     return(
         <>
@@ -84,7 +85,7 @@ export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtr
                                     </div>
                                     <div className="flex flex-col gap-2">
                                         {cartesTriees.map((record) => (
-                                            <CarteDraggable key={record.id} id={record.id} onClick={() => setSelected(record)}>
+                                            <CarteDraggable key={record.id} id={record.id} onClick={() => setSelected(record)} disabled={dragDesactive}>
                                                 <Carte record={record} colonnes={colonnes} colInfos={colInfos} max={4} forces={[tri]} />
                                             </CarteDraggable>  
                                     ))}
