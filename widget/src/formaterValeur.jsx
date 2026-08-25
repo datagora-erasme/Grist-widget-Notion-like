@@ -17,11 +17,11 @@ export function formaterValeur(valeur, colInfo) {
   if (Array.isArray(valeur)) {
     const items = valeur[0] === 'L' ? valeur.slice(1) : valeur
     return (
-      <span className="inline-flex flex-wrap gap-1 align-middle">
+      <span className="flex flex-wrap gap-0.5">
         {items.map((item, i) => {
           const opt = colInfo?.choiceOptions?.[item] || {}
           return (
-            <Badge variant="secondary" style={{ backgroundColor: opt.fillColor, color: opt.textColor}}>
+            <Badge variant="secondary" className="h-auto whitespace-normal break-words" style={{ backgroundColor: opt.fillColor, color: opt.textColor}}>
               {String(item)}
             </Badge>
           )
@@ -34,7 +34,7 @@ export function formaterValeur(valeur, colInfo) {
   if (type === 'Choice') {
     const opt = colInfo?.choiceOptions?.[valeur] || {}
     return (
-      <Badge variant="secondary" style={{ backgroundColor: opt.fillColor, color: opt.textColor}}>{String(valeur)}</Badge>
+      <Badge variant="secondary" className="h-auto whitespace-normal break-words" style={{ backgroundColor: opt.fillColor, color: opt.textColor}}>{String(valeur)}</Badge>
     )
   }
 
