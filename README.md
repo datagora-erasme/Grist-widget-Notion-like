@@ -4,7 +4,7 @@ Un widget personnalisé pour [Grist](https://www.getgrist.com/) qui affiche une 
 
 Il permet de partager des "vues bibliothèque" (comme sur Notion) à des personnes internes ou externes, **sans leur donner accès à l'espace de travail Grist**.
 
-🔗 **Version en ligne :** https://monabzh.github.io/Grist-widget-Notion-like/
+🔗 **Version en ligne :** https://datagora-erasme.github.io/Grist-widget-Notion-like/
 
 ---
 ## Aperçu du widget
@@ -21,7 +21,7 @@ Bien penser à **enregistrer** pour que les modifications de vues / filtre soien
 1. Sur une page Grist : **+ Ajouter -> Ajouter une page**, sélectionner la table en données sources et **Personnalisé** en type.
 2. Dans le panneau : choisir **Ajouter votre propre widget "URL personnalisé"** et coller :
    ```
-   https://monabzh.github.io/Grist-widget-Notion-like/
+   https://datagora-erasme.github.io/Grist-widget-Notion-like/
    ```
 3. Règle **Option de la vue -> Niveau d'accès -> Accès complet au document** (nécessaire pour lire les noms de
    colonnes, les couleurs, et pour le glisser-déposer).
