@@ -6,7 +6,7 @@ import { Badge } from "./components/ui/badge"
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors,} from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove, horizontalListSortingStrategy} from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical } from 'lucide-react'
+import { GripVertical, Plus, X } from 'lucide-react'
 import { formaterValeur } from './formaterValeur'
 import { Tableau } from './Tableau'
 import { Carte } from './Carte'
@@ -139,8 +139,8 @@ useEffect(() => {
     const newIndex = ids.indexOf(over.id)
     sauverOrdre(arrayMove(ids, oldIndex, newIndex))
   }
-  function ajouterVue() {
-    sauverVues([...kanbanVues, { id: Date.now(), champ: colonnes[0] }])
+  function ajouterVue(champ) {
+    sauverVues([...kanbanVues, { id: Date.now(), champ: champ || colonnes[0] }])
   }
   function modifierVue(id, changements) {
     sauverVues(kanbanVues.map((v) => (v.id === id ? { ...v, ...changements } : v)))
@@ -172,26 +172,6 @@ useEffect(() => {
         </h1>
       )}
 
-      <details className="mb-4">
-
-        <summary className="cursor-pointer font-semibold mb-2">Gérer les vues kanban</summary>
-        <div className="mb-4 p-3 border rounded">
-          {kanbanVues.map((vue) => (
-            <div key={vue.id} className="flex items-center gap-2 mb-2">
-              <Select value={vue.champ} onValueChange={(c) => modifierVue(vue.id, {champ: c})}>
-                <SelectTrigger className="w-48"><SelectValue placeholder="Colonne..."/></SelectTrigger>
-                <SelectContent>{colonnes.map((nom) => (
-                  <SelectItem key={nom} value={nom}>{colInfos[nom]?.label || nom}</SelectItem>
-                ))}
-                </SelectContent>
-              </Select>
-              <Button variant="destructive" size="sm" onClick={() => supprimerVue(vue.id)}>Supprimer</Button>
-            </div>
-          ))}
-          <Button size="sm" onClick={ajouterVue}>+ Ajouter une vue kanban</Button>
-        </div>
-      </details>
-
       <Tabs value={ongletActif ?? vues[0]?.id} onValueChange={(v) => setOngletActif(v)}>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={gererFinDrag}>
         <SortableContext items={vues.map((v) => v.id)} strategy={horizontalListSortingStrategy}>
@@ -205,8 +185,24 @@ useEffect(() => {
                 editionVue={editionVue}
                 setEditionVue={setEditionVue}
                 modifierVue={modifierVue}
+                supprimerVue={supprimerVue}
               />
             ))}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center justify-center w-8 h-8 rounded hover:bg-accent text-muted-foreground">
+                  <Plus size={16} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {colonnes.map((nom) => (
+                  <DropdownMenuCheckboxItem key={nom} checked={false} onClick={() => ajouterVue(nom)}>
+                    {colInfos[nom]?.label || nom}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </TabsList>
         </SortableContext>
       </DndContext>
@@ -296,7 +292,7 @@ useEffect(() => {
   )
 }
 
-function OngletTriable({ vue, ongletActif, setOngletActif, editionVue, setEditionVue, modifierVue }) {
+function OngletTriable({ vue, editionVue, setEditionVue, modifierVue, supprimerVue }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: vue.id })
 
   const style = {
@@ -307,10 +303,13 @@ function OngletTriable({ vue, ongletActif, setOngletActif, editionVue, setEditio
   }
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} className="group relative flex items-center">
       <TabsTrigger
         value={vue.id}
         onDoubleClick={() => { if (vue.vueId) setEditionVue(vue.vueId) }}
+        className={vue.type === 'kanban' ? 'pr-6' : ''}
+        {...attributes}
+        {...listeners}
       >
         {editionVue === vue.vueId ? (
           <input
@@ -325,6 +324,16 @@ function OngletTriable({ vue, ongletActif, setOngletActif, editionVue, setEditio
           vue.titre
         )}
       </TabsTrigger>
+
+      {vue.type === 'kanban' && (
+        <button
+          type="button"
+          onClick={() => supprimerVue(vue.vueId)}
+          className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive z-10"
+        >
+          <X size={14} />
+        </button>
+      )}
     </div>
   )
 }
