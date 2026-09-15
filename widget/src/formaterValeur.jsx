@@ -1,4 +1,120 @@
+import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
+import { Paperclip, X, Download } from "lucide-react"
+
+let tokenCache = null
+let tokenPromise = null
+
+async function getGristToken() {
+  const maintenant = Date.now()
+  if (tokenCache && tokenCache.expire > maintenant) return tokenCache
+  if (!tokenPromise) {
+    tokenPromise = grist.docApi.getAccessToken({ readOnly: true }).then((info) => {
+      tokenCache = { ...info, expire: maintenant + 3 * 60 * 1000 }
+      tokenPromise = null
+      return tokenCache
+    })
+  }
+  return tokenPromise
+}
+
+function PieceJointe({ id }) {
+  const [src, setSrc] = useState(null)
+  const [erreur, setErreur] = useState(false)
+  const [estAgrandie, setEstAgrandie] = useState(false)
+
+  useEffect(() => {
+    let annule = false
+    getGristToken().then(({ baseUrl, token }) => {
+      if (!annule) setSrc(`${baseUrl}/attachments/${id}/download?auth=${token}`)
+    })
+    return () => { annule = true }
+  }, [id])
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setEstAgrandie(false)
+    }
+    if (estAgrandie) window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [estAgrandie])
+
+  if (!src) return null
+
+  if (erreur) {
+    return (
+      <a href={src} target="_blank" rel="noreferrer" className="flex items-center justify-center h-12 w-12 rounded border bg-muted text-muted-foreground hover:bg-muted/80 transition-colors">
+        <Paperclip size={18} />
+      </a>
+    )
+  }
+
+return (
+    <>
+      {/* Miniature de l'image (Double clic pour agrandir) */}
+      <div 
+        onClick={(e) => {
+          e.stopPropagation()
+          setEstAgrandie(true)}}
+        className="cursor-pointer"
+        title="Double-cliquez pour agrandir"
+      >
+        <img
+          src={src}
+          alt="Pièce jointe"
+          onError={() => setErreur(true)}
+          className="h-12 w-12 object-cover rounded border hover:opacity-80 transition-opacity"
+        />
+      </div>
+
+      {/* Modale plein écran (Lightbox) */}
+      {estAgrandie && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          onClick={(e) => {
+            e.stopPropagation()
+            setEstAgrandie(false)
+          }}
+        >
+          {/* Conteneur principal de l'image agrandie */}
+          <div className="relative flex flex-col items-center">
+            
+            {/* Boutons d'action en haut à droite */}
+            <div className="absolute -top-12 right-0 flex gap-4">
+              <a 
+                href={src} 
+                target="_blank" 
+                rel="noreferrer"
+                className="p-2 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 rounded-full transition-all"
+                title="Ouvrir / Télécharger"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Download size={24} />
+              </a>
+              <button 
+                className="p-2 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 rounded-full transition-all"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setEstAgrandie(false)
+                }}
+                title="Fermer (Échap)"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <img
+              src={src}
+              alt="Agrandie"
+              className="max-h-[85vh] max-w-[90vw] object-contain rounded-md shadow-2xl"
+              onClick={(e) => e.stopPropagation()} // Évite de fermer la modale si on clique sur l'image elle-même
+            />
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
 
 export function formaterValeur(valeur, colInfo) {
   const type = colInfo?.type
@@ -11,6 +127,16 @@ export function formaterValeur(valeur, colInfo) {
   // booléen
   if (typeof valeur === 'boolean') {
     return <input type="checkbox" checked={valeur} readOnly className="h-4 w-4 accent-green-600"/>
+  }
+
+  // Pièces jointes (images + fichiers)
+  if (type === 'Attachments' && Array.isArray(valeur)) {
+    const ids = valeur[0] === 'L' ? valeur.slice(1) : valeur
+    return (
+      <span className="flex flex-wrap gap-1">
+        {ids.map((id) => <PieceJointe key={id} id={id} />)}
+      </span>
+    )
   }
 
   // liste Grist => badge
