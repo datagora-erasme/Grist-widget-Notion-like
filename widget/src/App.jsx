@@ -3,6 +3,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Badge } from "./components/ui/badge"
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors,} from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove, horizontalListSortingStrategy} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { GripVertical } from 'lucide-react'
 import { formaterValeur } from './formaterValeur'
 import { Tableau } from './Tableau'
 import { Carte } from './Carte'
@@ -124,11 +128,16 @@ useEffect(() => {
     setOrdreVues(nouvel)
     grist.setOption('ordreVues', nouvel)
   }
-  function deplacerVue(index, dir) {
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+
+  function gererFinDrag(event) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
     const ids = vues.map((v) => v.id)
-    const j = index + dir
-    ;[ids[index], ids[j]] = [ids[j], ids[index]]
-    sauverOrdre(ids)
+    const oldIndex = ids.indexOf(active.id)
+    const newIndex = ids.indexOf(over.id)
+    sauverOrdre(arrayMove(ids, oldIndex, newIndex))
   }
   function ajouterVue() {
     sauverVues([...kanbanVues, { id: Date.now(), champ: colonnes[0] }])
@@ -179,39 +188,28 @@ useEffect(() => {
               <Button variant="destructive" size="sm" onClick={() => supprimerVue(vue.id)}>Supprimer</Button>
             </div>
           ))}
-          <div className="mt-3">
-            <div className="text-sm font-semibold mb-1">Ordre des onglets</div>
-            {vues.map((vue, i) => (
-              <div key={vue.id} className="flex items-center gap-2 mb-1">
-                <span className="text-sm flex-1">{vue.titre}</span>
-                <Button size="sm" variant="outline" disabled={i === 0} onClick={() => deplacerVue(i, -1)}>↑</Button>
-                <Button size="sm" variant="outline" disabled={i === vues.length - 1} onClick={() => deplacerVue(i, 1)}>↓</Button>
-              </div>
-            ))}
-          </div>
           <Button size="sm" onClick={ajouterVue}>+ Ajouter une vue kanban</Button>
         </div>
       </details>
 
       <Tabs value={ongletActif ?? vues[0]?.id} onValueChange={(v) => setOngletActif(v)}>
-        <TabsList>
-          {vues.map((vue) => (
-          <TabsTrigger key={vue.id} value={vue.id} onDoubleClick={() => { if (vue.vueId) setEditionVue(vue.vueId) }}>
-            {editionVue === vue.vueId ? (
-              <input
-                autoFocus
-                defaultValue={vue.titre}
-                onClick={(e) => e.stopPropagation()}
-                onBlur={(e) => { modifierVue(vue.vueId, { nom: e.target.value }); setEditionVue(null) }}
-                onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur() }}
-                className="w-28 border rounded px-1"
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={gererFinDrag}>
+        <SortableContext items={vues.map((v) => v.id)} strategy={horizontalListSortingStrategy}>
+          <TabsList>
+            {vues.map((vue) => (
+              <OngletTriable
+                key={vue.id}
+                vue={vue}
+                ongletActif={ongletActif}
+                setOngletActif={setOngletActif}
+                editionVue={editionVue}
+                setEditionVue={setEditionVue}
+                modifierVue={modifierVue}
               />
-            ) : (
-            vue.titre
-            )}
-          </TabsTrigger>
-          ))}
-        </TabsList>
+            ))}
+          </TabsList>
+        </SortableContext>
+      </DndContext>
 
         {vues.map((vue) => (
           <TabsContent key={vue.id} value={vue.id}>
@@ -294,6 +292,39 @@ useEffect(() => {
           </TabsContent>
         ))}
       </Tabs>
+    </div>
+  )
+}
+
+function OngletTriable({ vue, ongletActif, setOngletActif, editionVue, setEditionVue, modifierVue }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: vue.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1 : 0,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <TabsTrigger
+        value={vue.id}
+        onDoubleClick={() => { if (vue.vueId) setEditionVue(vue.vueId) }}
+      >
+        {editionVue === vue.vueId ? (
+          <input
+            autoFocus
+            defaultValue={vue.titre}
+            onClick={(e) => e.stopPropagation()}
+            onBlur={(e) => { modifierVue(vue.vueId, { nom: e.target.value }); setEditionVue(null) }}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur() }}
+            className="w-28 border rounded px-1"
+          />
+        ) : (
+          vue.titre
+        )}
+      </TabsTrigger>
     </div>
   )
 }
