@@ -19,15 +19,33 @@ function App() {
   const [editionVue, setEditionVue] = useState(null)
   const [ordreVues, setOrdreVues] = useState([])
   const [ongletActif, setOngletActif] = useState(null)
+  
+  function isGristDark() {
+    return document.documentElement.getAttribute('data-grist-appearance') === 'dark';
+  }
 
-  useEffect(() => {
-    grist.ready({ requiredAccess: 'full'})
+  document.documentElement.classList.toggle('dark', isGristDark());
+
+useEffect(() => {
+    grist.ready({ requiredAccess: 'full' })
     grist.onRecords((r) => { setRecords(r); chargerColonnes()}, { includeColumns: 'normal'})
     grist.onOptions((options) => {
       setKanbanVues(options?.kanbanVues || [])
       setTitre(options?.titre || '')
       setOrdreVues(options?.ordreVues || [])
     })
+
+    const apply = () => {
+      const isDark = document.documentElement.getAttribute('data-grist-appearance') === 'dark';
+      document.documentElement.classList.toggle('dark', isDark);
+    };
+    apply();
+
+    const observer = new MutationObserver(apply);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-grist-appearance']
+    });
 
   async function chargerColonnes() {
       const tableId = await grist.getTable().getTableId()
@@ -66,6 +84,8 @@ function App() {
       setColInfos(infos)
     }
     chargerColonnes()
+
+    return () => observer.disconnect();
 }, [])
 
 
