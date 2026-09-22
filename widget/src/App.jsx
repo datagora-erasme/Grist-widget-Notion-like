@@ -111,6 +111,7 @@ function App() {
       sensTri: v.sensTri,
       filtreChamp: v.filtreChamp,
       filtreVals: v.filtreVals,
+      ordreColonnes: v.ordreColonnes,
     })),
   ]
 
@@ -128,6 +129,14 @@ function App() {
     setOrdreVues(nouvel)
     grist.setOption('ordreVues', nouvel)
   }
+
+  function sauverOrdreColonnes(vueId, nouvelOrdre) {
+    const nouvellesVues = kanbanVues.map((v) => 
+      v.id === vueId ? { ...v, ordreColonnes: nouvelOrdre } : v
+    )
+    sauverVues(nouvellesVues)
+  }
+
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   function gererFinDrag(event) {
@@ -219,7 +228,7 @@ function App() {
                     {/* Zone de Tri */}
                     <div className="flex items-center gap-2">
                       <span className="text-sm whitespace-nowrap">Trier par :</span>
-                      <Select value={vue.tri || ' '} onValueChange={(c) => modifierVue(vue.vueId, {tri : c === 'none' ? null : c})}>
+                      <Select value={vue.tri || 'none'} onValueChange={(c) => modifierVue(vue.vueId, {tri : c === 'none' ? null : c})}>
                         <SelectTrigger className="w-40"><SelectValue placeholder="-"/></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="none" className="italic text-muted-foreground">Aucun tri</SelectItem>
@@ -241,7 +250,7 @@ function App() {
                     {/* Zone de Filtre */}
                     <div className="flex items-center gap-2">
                       <span className="text-sm ml-4 whitespace-nowrap">Filtrer :</span>
-                      <Select value={vue.filtreChamp || ' '} onValueChange={(c) => modifierVue(vue.vueId, { filtreChamp: c === 'none' ? null : c, filtreVals: []})}>
+                      <Select value={vue.filtreChamp || 'none'} onValueChange={(c) => modifierVue(vue.vueId, { filtreChamp: c === 'none' ? null : c, filtreVals: []})}>
                         <SelectTrigger className="w-40"><SelectValue placeholder="Colonne..."/></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="none" className="italic text-muted-foreground">Aucun filtre</SelectItem>
@@ -296,7 +305,7 @@ function App() {
                     </div>
                   </div>
                 </details>
-                <Kanban records={records} colonnes={colonnes} colInfos={colInfos} champ={vue.champ} tri={vue.tri} sensTri={vue.sensTri} filtreChamp={vue.filtreChamp} filtreVals={vue.filtreVals}/>
+                <Kanban records={records} colonnes={colonnes} colInfos={colInfos} champ={vue.champ} tri={vue.tri} sensTri={vue.sensTri} filtreChamp={vue.filtreChamp} filtreVals={vue.filtreVals} ordreColonnesEnregistre={vue.ordreColonnes} onReorderColumns={(nouvelOrdre) => sauverOrdreColonnes(vue.vueId, nouvelOrdre)} />
               </>
             )}
           </TabsContent>
