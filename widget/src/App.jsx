@@ -30,7 +30,7 @@ function App() {
 
   document.documentElement.classList.toggle('dark', isGristDark());
 
-useEffect(() => {
+  useEffect(() => {
     grist.ready({ requiredAccess: 'full' })
     grist.onRecords((r) => { setRecords(r); chargerColonnes()}, { includeColumns: 'normal'})
     grist.onOptions((options) => {
@@ -51,7 +51,7 @@ useEffect(() => {
       attributeFilter: ['data-grist-appearance']
     });
 
-  async function chargerColonnes() {
+    async function chargerColonnes() {
       const tableId = await grist.getTable().getTableId()
       const tables = await grist.docApi.fetchTable('_grist_Tables')
       const cols = await grist.docApi.fetchTable('_grist_Tables_column')
@@ -90,7 +90,7 @@ useEffect(() => {
     chargerColonnes()
 
     return () => observer.disconnect();
-}, [])
+  }, [])
 
 
   const colonnes = records.length > 0
@@ -160,7 +160,7 @@ useEffect(() => {
         <input 
           type="text"
           value={titre}
-          autofocus
+          autoFocus
           onChange={(e) => setTitre(e.target.value)}
           onBlur={() => { setEdititionTitre(false); grist.setOption('titre', titre)}}
           onKeyDown={(e) => { if (e.key === 'Enter') e.target.blur() }}
@@ -173,117 +173,131 @@ useEffect(() => {
       )}
 
       <Tabs value={ongletActif ?? vues[0]?.id} onValueChange={(v) => setOngletActif(v)}>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={gererFinDrag}>
-        <SortableContext items={vues.map((v) => v.id)} strategy={horizontalListSortingStrategy}>
-          <TabsList>
-            {vues.map((vue) => (
-              <OngletTriable
-                key={vue.id}
-                vue={vue}
-                ongletActif={ongletActif}
-                setOngletActif={setOngletActif}
-                editionVue={editionVue}
-                setEditionVue={setEditionVue}
-                modifierVue={modifierVue}
-                supprimerVue={supprimerVue}
-              />
-            ))}
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={gererFinDrag}>
+          <SortableContext items={vues.map((v) => v.id)} strategy={horizontalListSortingStrategy}>
+            <TabsList>
+              {vues.map((vue) => (
+                <OngletTriable
+                  key={vue.id}
+                  vue={vue}
+                  ongletActif={ongletActif}
+                  setOngletActif={setOngletActif}
+                  editionVue={editionVue}
+                  setEditionVue={setEditionVue}
+                  modifierVue={modifierVue}
+                  supprimerVue={supprimerVue}
+                />
+              ))}
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center justify-center w-8 h-8 rounded hover:bg-accent text-muted-foreground">
-                  <Plus size={16} />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {colonnes.map((nom) => (
-                  <DropdownMenuCheckboxItem key={nom} checked={false} onClick={() => ajouterVue(nom)}>
-                    {colInfos[nom]?.label || nom}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </TabsList>
-        </SortableContext>
-      </DndContext>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center justify-center w-8 h-8 rounded hover:bg-accent text-muted-foreground">
+                    <Plus size={16} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {colonnes.map((nom) => (
+                    <DropdownMenuCheckboxItem key={nom} checked={false} onClick={() => ajouterVue(nom)}>
+                      {colInfos[nom]?.label || nom}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TabsList>
+          </SortableContext>
+        </DndContext>
 
         {vues.map((vue) => (
           <TabsContent key={vue.id} value={vue.id}>
             {vue.type === "tableau" && <Tableau records={records} colonnes={colonnes} colInfos={colInfos} />}
             {vue.type === "kanban" && (
-            <>
-              <details className="mb-2">
-                <summary className="cursor-pointer text-sm text-muted-foreground">Réglage</summary>
-                <div className="flex flex-col gap-2 mt-2">
-                  <div className="flex items-center gap-2">
-                  <span className="text-sm">Trier par :</span>
-                  <Select value={vue.tri || ''} onValueChange={(c) => modifierVue(vue.vueId, {tri : c})}>
-                    <SelectTrigger className="w-40"><SelectValue paceholder="-"/></SelectTrigger>
-                    <SelectContent>{colonnes.map((nom) => (
-                      <SelectItem key={nom} value={nom}>{colInfos[nom]?.label || nom}</SelectItem>
-                    ))}</SelectContent>
-                  </Select>
-
-                  <Select value={vue.sensTri || 'asc'} onValueChange={(c) => modifierVue(vue.vueId, { sensTri: c})}>
-                    <SelectTrigger className="w-32"><SelectValue/></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="asc">croissant</SelectItem>
-                      <SelectItem value="desc">décroissant</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm ml-4">Filtrer :</span>
-                  <Select value={vue.filtreChamp || ''} onValueChange={(c) => modifierVue(vue.vueId, { filtreChamp: c})}>
-                    <SelectTrigger className="w-40"><SelectValue placehorder="Colonne..."/></SelectTrigger>
-                    <SelectContent>{colonnes.map((nom) => (
-                      <SelectItem key={nom} value={nom}>{colInfos[nom]?.label || nom}</SelectItem>
-                    ))}</SelectContent>
-                  </Select>
-
-                  <span className="text-sm">contient :</span>
-                  {colInfos[vue.filtreChamp]?.choices?.length ? (
-                    colInfos[vue.filtreChamp].choices.map((choix) => {
-                    const opt = colInfos[vue.filtreChamp].choiceOptions?.[choix] || {}
-                    const actif = (vue.filtreVals || []).includes(choix)
+              <>
+                <details className="mb-2">
+                  <summary className="cursor-pointer text-sm text-muted-foreground">Réglage</summary>
+                  <div className="flex flex-col gap-2 mt-2">
                     
-                    return(
-                      <Badge
-                      key={choix}
-                      className="cursor-pointer"
-                      variant={actif ? "default" : "outline"}
-                      style={actif ? { backgroundColor: opt.fillColor, color: opt.textColor } : {}}
-                      onClick={() => {
-                        const actuels = vue.filtreVals || []
-                        modifierVue(vue.vueId, { filtreVals: actif ? actuels.filter((x) => x !== choix) : [...actuels, choix] })
-                      }}>
-                        {choix}
-                      </Badge>
-                    )
-                  })
-                ) : (
-                  <>
-                  {(vue.filtreVals || []).map((val, i) => (
-                    <Badge key={i} variant="secondary" className="cursor-pointer" onClick={() => modifierVue(vue.vueId, { filtreVals: vue.filtreVals.filter((x) => x !== val) })}>{val} x</Badge>
-                  ))}
-                  <input
-                    type="text"
-                    paceholder="ajouter + Entrée"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && e.target.value.trim()) {
-                        modifierVue(vue.vueId, { filtreVals: [...(vue.filtreVals || []), e.target.value.trim()]})
-                        e.target.value=''
-                      }
-                    }}
-                    className="border rounded px-2 py-1 text-sm w-40"
-                    />
-                    </>
-                )}
+                    {/* Zone de Tri */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">Trier par :</span>
+                      <Select value={vue.tri || ' '} onValueChange={(c) => modifierVue(vue.vueId, {tri : c === 'none' ? null : c})}>
+                        <SelectTrigger className="w-40"><SelectValue placeholder="-"/></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none" className="italic text-muted-foreground">Aucun tri</SelectItem>
+                          {colonnes.map((nom) => (
+                            <SelectItem key={nom} value={nom}>{colInfos[nom]?.label || nom}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      <Select value={vue.sensTri || 'asc'} onValueChange={(c) => modifierVue(vue.vueId, { sensTri: c})}>
+                        <SelectTrigger className="w-32"><SelectValue/></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="asc">croissant</SelectItem>
+                          <SelectItem value="desc">décroissant</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    {/* Zone de Filtre */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm ml-4">Filtrer :</span>
+                      <Select value={vue.filtreChamp || ' '} onValueChange={(c) => modifierVue(vue.vueId, { filtreChamp: c === 'none' ? null : c, filtreVals: []})}>
+                        <SelectTrigger className="w-40"><SelectValue placeholder="Colonne..."/></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none" className="italic text-muted-foreground">Aucun filtre</SelectItem>
+                          {colonnes.map((nom) => (
+                            <SelectItem key={nom} value={nom}>{colInfos[nom]?.label || nom}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+
+                      {vue.filtreChamp && (
+                        <>
+                          <span className="text-sm">contient :</span>
+                          {colInfos[vue.filtreChamp]?.choices?.length ? (
+                            colInfos[vue.filtreChamp].choices.map((choix) => {
+                              const opt = colInfos[vue.filtreChamp].choiceOptions?.[choix] || {}
+                              const actif = (vue.filtreVals || []).includes(choix)
+                              
+                              return(
+                                <Badge
+                                  key={choix}
+                                  className="cursor-pointer"
+                                  variant={actif ? "default" : "outline"}
+                                  style={actif ? { backgroundColor: opt.fillColor, color: opt.textColor } : {}}
+                                  onClick={() => {
+                                    const actuels = vue.filtreVals || []
+                                    modifierVue(vue.vueId, { filtreVals: actif ? actuels.filter((x) => x !== choix) : [...actuels, choix] })
+                                  }}>
+                                  {choix}
+                                </Badge>
+                              )
+                            })
+                          ) : (
+                            <>
+                              {(vue.filtreVals || []).map((val, i) => (
+                                <Badge key={i} variant="secondary" className="cursor-pointer" onClick={() => modifierVue(vue.vueId, { filtreVals: vue.filtreVals.filter((x) => x !== val) })}>{val} x</Badge>
+                              ))}
+                              <input
+                                type="text"
+                                placeholder="ajouter + Entrée"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' && e.target.value.trim()) {
+                                    modifierVue(vue.vueId, { filtreVals: [...(vue.filtreVals || []), e.target.value.trim()]})
+                                    e.target.value=''
+                                  }
+                                }}
+                                className="border rounded px-2 py-1 text-sm w-40"
+                              />
+                            </>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </details>
-              <Kanban records={records} colonnes={colonnes} colInfos={colInfos} champ={vue.champ} tri={vue.tri} sensTri={vue.sensTri} filtreChamp={vue.filtreChamp} filtreVals={vue.filtreVals}/>
-            </>
+                </details>
+                <Kanban records={records} colonnes={colonnes} colInfos={colInfos} champ={vue.champ} tri={vue.tri} sensTri={vue.sensTri} filtreChamp={vue.filtreChamp} filtreVals={vue.filtreVals}/>
+              </>
             )}
           </TabsContent>
         ))}
