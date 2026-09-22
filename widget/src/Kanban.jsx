@@ -105,11 +105,16 @@ export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtr
             </DndContext>
 
             <Sheet open={selected !== null} onOpenChange={(ouvert) => {if (!ouvert) setSelected(null)}}>
-                <SheetContent>
-                    <SheetHeader>
+                <SheetContent className="w-[400px] sm:max-w-[540px] h-full flex flex-col">
+                    
+                    <SheetHeader className="mb-4 shrink-0">
                         <SheetTitle>Détail</SheetTitle>
                     </SheetHeader>
-                    {selected && <Carte record={selected} colonnes={colonnes} colInfos={colInfos} />}
+                    
+                    <div className="flex-1 overflow-y-auto pr-4 -mr-4 pb-8">
+                        {selected && <Carte record={selected} colonnes={colonnes} colInfos={colInfos} isDetail={true} />}
+                    </div>
+                    
                 </SheetContent>
             </Sheet>
         </>

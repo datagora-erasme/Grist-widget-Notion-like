@@ -156,7 +156,7 @@ export function formaterValeur(valeur, colInfo) {
   if (type === 'Attachments' && Array.isArray(valeur)) {
     const ids = valeur[0] === 'L' ? valeur.slice(1) : valeur
     return (
-      <span className="flex flex-wrap gap-1">
+      <span className="inline-flex flex-wrap gap-1">
         {ids.map((id) => <PieceJointe key={id} id={id} />)}
       </span>
     )
@@ -166,7 +166,7 @@ export function formaterValeur(valeur, colInfo) {
   if (Array.isArray(valeur)) {
     const items = valeur[0] === 'L' ? valeur.slice(1) : valeur
     return (
-      <span className="flex flex-wrap gap-0.5">
+      <span className="inline-flex flex-wrap gap-0.5">
         {items.map((item, i) => {
           const opt = colInfo?.choiceOptions?.[item] || {}
           return (
