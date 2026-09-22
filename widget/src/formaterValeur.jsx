@@ -18,11 +18,12 @@ async function getGristToken() {
   return tokenPromise
 }
 
-function PieceJointe({ id }) {
+export function PieceJointe({ id, variante = "miniature" }) {
   const [src, setSrc] = useState(null)
   const [erreur, setErreur] = useState(false)
   const [estAgrandie, setEstAgrandie] = useState(false)
 
+  // Chargement de l'image
   useEffect(() => {
     let annule = false
     getGristToken().then(({ baseUrl, token }) => {
@@ -31,6 +32,7 @@ function PieceJointe({ id }) {
     return () => { annule = true }
   }, [id])
 
+  // Gestion de la touche Echap pour fermer la modale
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") setEstAgrandie(false)
@@ -41,23 +43,44 @@ function PieceJointe({ id }) {
 
   if (!src) return null
 
+  // Affichage si c'est un fichier non-image (trombone)
   if (erreur) {
     return (
-      <a href={src} target="_blank" rel="noreferrer" className="flex items-center justify-center h-12 w-12 rounded border bg-muted text-muted-foreground hover:bg-muted/80 transition-colors">
+      <a 
+        href={src} 
+        target="_blank" 
+        rel="noreferrer" 
+        onClick={(e) => e.stopPropagation()} 
+        className="flex items-center justify-center h-12 w-12 rounded border bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+      >
         <Paperclip size={18} />
       </a>
     )
   }
 
-return (
+  // Affichage de la couverture (en haut de la carte)
+  if (variante === "couverture") {
+    return (
+      <img
+        src={src}
+        alt="Couverture"
+        onError={() => setErreur(true)}
+        className="w-full h-48 object-cover" 
+      />
+    )
+  }
+
+  // Affichage normal (miniature cliquable + modale)
+  return (
     <>
-      {/* Miniature de l'image (Double clic pour agrandir) */}
+      {/* Miniature de l'image */}
       <div 
         onClick={(e) => {
           e.stopPropagation()
-          setEstAgrandie(true)}}
+          setEstAgrandie(true)
+        }}
         className="cursor-pointer"
-        title="Double-cliquez pour agrandir"
+        title="Cliquez pour agrandir"
       >
         <img
           src={src}
@@ -107,7 +130,7 @@ return (
               src={src}
               alt="Agrandie"
               className="max-h-[85vh] max-w-[90vw] object-contain rounded-md shadow-2xl"
-              onClick={(e) => e.stopPropagation()} // Évite de fermer la modale si on clique sur l'image elle-même
+              onClick={(e) => e.stopPropagation()} 
             />
           </div>
         </div>
@@ -147,7 +170,7 @@ export function formaterValeur(valeur, colInfo) {
         {items.map((item, i) => {
           const opt = colInfo?.choiceOptions?.[item] || {}
           return (
-            <Badge variant="secondary" className="h-auto whitespace-normal break-words" style={{ backgroundColor: opt.fillColor, color: opt.textColor}}>
+            <Badge key={i} variant="secondary" className="h-auto whitespace-normal break-words" style={{ backgroundColor: opt.fillColor, color: opt.textColor}}>
               {String(item)}
             </Badge>
           )
