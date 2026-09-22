@@ -218,7 +218,7 @@ function App() {
                     
                     {/* Zone de Tri */}
                     <div className="flex items-center gap-2">
-                      <span className="text-sm">Trier par :</span>
+                      <span className="text-sm whitespace-nowrap">Trier par :</span>
                       <Select value={vue.tri || ' '} onValueChange={(c) => modifierVue(vue.vueId, {tri : c === 'none' ? null : c})}>
                         <SelectTrigger className="w-40"><SelectValue placeholder="-"/></SelectTrigger>
                         <SelectContent>
@@ -240,7 +240,7 @@ function App() {
                     
                     {/* Zone de Filtre */}
                     <div className="flex items-center gap-2">
-                      <span className="text-sm ml-4">Filtrer :</span>
+                      <span className="text-sm ml-4 whitespace-nowrap">Filtrer :</span>
                       <Select value={vue.filtreChamp || ' '} onValueChange={(c) => modifierVue(vue.vueId, { filtreChamp: c === 'none' ? null : c, filtreVals: []})}>
                         <SelectTrigger className="w-40"><SelectValue placeholder="Colonne..."/></SelectTrigger>
                         <SelectContent>
@@ -253,7 +253,7 @@ function App() {
 
                       {vue.filtreChamp && (
                         <>
-                          <span className="text-sm">contient :</span>
+                          <span className="text-sm whitespace-nowrap">contient :</span>
                           {colInfos[vue.filtreChamp]?.choices?.length ? (
                             colInfos[vue.filtreChamp].choices.map((choix) => {
                               const opt = colInfos[vue.filtreChamp].choiceOptions?.[choix] || {}
