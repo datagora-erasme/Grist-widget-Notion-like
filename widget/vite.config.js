@@ -7,8 +7,16 @@ export default defineConfig({
   base: '/Grist-widget-Notion-like/',
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias : {
+    alias: {
       '@': path.resolve(import.meta.dirname, './src'),
+    },
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        kanban: path.resolve(import.meta.dirname, 'kanban.html'),
+        galerie: path.resolve(import.meta.dirname, 'galerie.html'),
+      },
     },
   },
 })

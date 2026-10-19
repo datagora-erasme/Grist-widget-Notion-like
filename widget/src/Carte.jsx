@@ -2,7 +2,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { formaterValeur, PieceJointe } from "./formaterValeur"
 
 // NOUVEAU : Ajout de "isDetail = false" dans les paramètres
-export function Carte({ record, colonnes, colInfos, max, forces = [], isDetail = false }) {
+export function Carte({ record, colonnes, colInfos, max, forces = [], isDetail = false, onClick }) {
     const [titre, ...autres] = colonnes
     
     const colCoverName = colonnes.find(col => {
@@ -40,7 +40,7 @@ export function Carte({ record, colonnes, colInfos, max, forces = [], isDetail =
     const valeurTitre = filtrerValeur(titre, record[titre]);
 
     return (
-        <Card className={isDetail ? "border-none shadow-none" : "overflow-hidden hover:shadow-md transition-shadow cursor-pointer"}>
+        <Card className={isDetail ? "border-none shadow-none" : "overflow-hidden hover:shadow-md transition-shadow cursor-pointer"} onClick={onClick}>
             
             {coverId && (
                 <div className="w-full border-b border-border/50">
