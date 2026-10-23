@@ -160,7 +160,7 @@ export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtr
                                                     <div {...attributes} {...listeners} className="cursor-grab text-muted-foreground hover:text-foreground p-1">
                                                         <GripVertical size={16} />
                                                     </div>
-                                                    <Badge className="h-auto whitespace-normal break-words max-w-[180px]" style={{ backgroundColor: couleur, color: opt.textColor || '#fff' }}>
+                                                    <Badge className="h-auto whitespace-normal break-words max-w-[180px]" style={{ backgroundColor: couleur, color: opt.textColor || '#000' }}>
                                                         {valeur}
                                                     </Badge>
                                                 </div>
@@ -197,7 +197,7 @@ export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtr
                         <SheetTitle>Détail</SheetTitle>
                     </SheetHeader>
                     <div className="flex-1 overflow-y-auto pr-4 -mr-4 pb-8">
-                        {selected && <Carte record={selected} colonnes={colonnes} colInfos={colInfos} forces={forcesCarte} isDetail={true} />}
+                        {selected && <Carte record={selected} colonnes={colonnes} colInfos={colInfos} forces={[]} isDetail={true} />}
                     </div>
                 </SheetContent>
             </Sheet>

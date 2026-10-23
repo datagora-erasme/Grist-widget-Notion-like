@@ -274,7 +274,7 @@ function AppKanban() {
                                 const actif = (vue.filtreVals || []).includes(choix)
                                 return (
                                   <Badge key={choix} className="cursor-pointer text-xs" variant={actif ? "default" : "outline"}
-                                    style={actif ? { backgroundColor: opt.fillColor, color: opt.textColor } : {}}
+                                    style={actif ? { backgroundColor: opt.fillColor, color: opt.textColor || '#000' } : {}}
                                     onClick={() => {
                                       const actuels = vue.filtreVals || []
                                       modifierVue(vue.vueId, { filtreVals: actif ? actuels.filter((x) => x !== choix) : [...actuels, choix] })

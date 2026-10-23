@@ -19,7 +19,7 @@ export function Galerie({ records, colonnes, colInfos, champsVisibles = [] }) {
                         <SheetTitle>Détail</SheetTitle>
                     </SheetHeader>
                     <div className="flex-1 overflow-y-auto pr-4 -mr-4 pb-8">
-                        {selected && <Carte record={selected} colonnes={colonnes} colInfos={colInfos} forces={champsVisibles} isDetail={true} />}
+                        {selected && <Carte record={selected} colonnes={colonnes} colInfos={colInfos} forces={[]} isDetail={true} />}
                     </div>
                 </SheetContent>
             </Sheet>

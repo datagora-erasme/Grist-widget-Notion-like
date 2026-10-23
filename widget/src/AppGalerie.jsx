@@ -106,7 +106,11 @@ export default function AppGalerie() {
   // Appliquer filtre + tri
   let recordsFinaux = records
   if (filtreChamp && filtreVals.length > 0) {
-    recordsFinaux = recordsFinaux.filter(r => filtreVals.includes(r[filtreChamp]))
+    recordsFinaux = recordsFinaux.filter(r => {
+      const val = r[filtreChamp]
+      if (Array.isArray(val)) return val.some(v => filtreVals.includes(v))
+      return filtreVals.includes(val)
+    })
   }
   if (tri) {
     recordsFinaux = [...recordsFinaux].sort((a, b) => {
@@ -205,7 +209,7 @@ export default function AppGalerie() {
                           const actif = filtreVals.includes(choix)
                           return (
                             <Badge key={choix} className="cursor-pointer text-xs" variant={actif ? "default" : "outline"}
-                              style={actif ? { backgroundColor: opt.fillColor, color: opt.textColor } : {}}
+                              style={actif ? { backgroundColor: opt.fillColor, color: opt.textColor || '#000' } : {}}
                               onClick={() => sauverGalerieOptions({ filtreVals: actif ? filtreVals.filter(x => x !== choix) : [...filtreVals, choix] })}>{choix}
                             </Badge>
                           )

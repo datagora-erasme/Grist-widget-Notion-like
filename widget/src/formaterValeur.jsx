@@ -170,7 +170,7 @@ export function formaterValeur(valeur, colInfo) {
         {items.map((item, i) => {
           const opt = colInfo?.choiceOptions?.[item] || {}
           return (
-            <Badge key={i} variant="secondary" className="h-auto whitespace-normal break-words" style={{ backgroundColor: opt.fillColor, color: opt.textColor}}>
+            <Badge key={i} variant="secondary" className="h-auto whitespace-normal break-words" style={{ backgroundColor: opt.fillColor, color: opt.textColor || '#000'}}>
               {String(item)}
             </Badge>
           )
@@ -183,7 +183,7 @@ export function formaterValeur(valeur, colInfo) {
   if (type === 'Choice') {
     const opt = colInfo?.choiceOptions?.[valeur] || {}
     return (
-      <Badge variant="secondary" className="h-auto whitespace-normal break-words" style={{ backgroundColor: opt.fillColor, color: opt.textColor}}>{String(valeur)}</Badge>
+      <Badge variant="secondary" className="h-auto whitespace-normal break-words" style={{ backgroundColor: opt.fillColor, color: opt.textColor || '#000'}}>{String(valeur)}</Badge>
     )
   }
 
