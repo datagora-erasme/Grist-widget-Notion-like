@@ -20,12 +20,12 @@ export function Carte({ record, colonnes, colInfos, max, forces = [], isDetail =
         coverId = ids[0]
     }
 
-    let champs = max ? autres.slice(0, max) : autres
-    forces.forEach((f) => { 
-        if (f && f !== titre && !champs.includes(f)) {
-            champs = [...champs, f]
-        }
-    })
+    let champs
+    if (forces.length > 0) {
+        champs = forces.filter(f => f !== titre)
+    } else {
+        champs = max ? autres.slice(0, max) : autres
+    }
 
     const filtrerValeur = (nomCol, valeurInitiale) => {
         if (nomCol === colCoverName && coverId && Array.isArray(valeurInitiale)) {

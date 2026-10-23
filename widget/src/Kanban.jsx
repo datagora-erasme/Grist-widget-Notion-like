@@ -36,12 +36,16 @@ function ColonneDroppable({ id, className, style, children }) {
     )
 }
 
-export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtreChamp, filtreVals, ordreColonnesEnregistre, onReorderColumns }) {
+export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtreChamp, filtreVals, ordreColonnesEnregistre, onReorderColumns, champsVisibles }) {
     const [activeId, setActiveId] = useState(null)
     const [selected, setSelected] = useState(null)
     const [ordreColonnes, setOrdreColonnes] = useState(ordreColonnesEnregistre || null)
 
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+
+    // Champs de données à afficher sur les cartes (3 premières par défaut, excluant le champ de groupage)
+    const colonnesDonnees = colonnes.filter(c => c !== champ)
+    const forcesCarte = champsVisibles && champsVisibles.length > 0 ? champsVisibles : colonnesDonnees.slice(0, 3)
 
     const recordsFiltres = (filtreChamp && filtreVals?.length)
         ? records.filter((r) => {
@@ -156,7 +160,7 @@ export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtr
                                                     <div {...attributes} {...listeners} className="cursor-grab text-muted-foreground hover:text-foreground p-1">
                                                         <GripVertical size={16} />
                                                     </div>
-                                                    <Badge className="h-auto whitespace-normal break-words" style={{ backgroundColor: couleur, color: opt.textColor || '#fff' }}>
+                                                    <Badge className="h-auto whitespace-normal break-words max-w-[180px]" style={{ backgroundColor: couleur, color: opt.textColor || '#fff' }}>
                                                         {valeur}
                                                     </Badge>
                                                 </div>
@@ -168,7 +172,7 @@ export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtr
                                             <div className="flex flex-col gap-2 min-h-[100px]">
                                                 {cartesTriees.map((record) => (
                                                     <CarteDraggable key={record.id} id={record.id} onClick={() => setSelected(record)} disabled={dragDesactive}>
-                                                        <Carte record={record} colonnes={colonnes} colInfos={colInfos} max={4} forces={[tri]} />
+                                                        <Carte record={record} colonnes={colonnes} colInfos={colInfos} forces={forcesCarte} />
                                                     </CarteDraggable>  
                                                 ))}
                                             </div>
@@ -182,7 +186,7 @@ export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtr
 
                 <DragOverlay>
                     {activeId && !String(activeId).startsWith('col-') ? (
-                        <Carte record={records.find((r) => r.id === activeId)} colonnes={colonnes} colInfos={colInfos} />
+                        <Carte record={records.find((r) => r.id === activeId)} colonnes={colonnes} colInfos={colInfos} forces={forcesCarte} />
                     ) : null}
                 </DragOverlay>
             </DndContext>
@@ -193,7 +197,7 @@ export function Kanban({ records, colonnes, colInfos, champ, tri, sensTri, filtr
                         <SheetTitle>Détail</SheetTitle>
                     </SheetHeader>
                     <div className="flex-1 overflow-y-auto pr-4 -mr-4 pb-8">
-                        {selected && <Carte record={selected} colonnes={colonnes} colInfos={colInfos} isDetail={true} />}
+                        {selected && <Carte record={selected} colonnes={colonnes} colInfos={colInfos} forces={forcesCarte} isDetail={true} />}
                     </div>
                 </SheetContent>
             </Sheet>

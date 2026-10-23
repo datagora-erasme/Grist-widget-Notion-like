@@ -2,14 +2,14 @@ import { Carte } from "./Carte"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useState } from "react"
 
-export function Galerie({ records, colonnes, colInfos }) {
+export function Galerie({ records, colonnes, colInfos, champsVisibles = [] }) {
     const [selected, setSelected] = useState(null)
 
     return (
         <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {records.map((record) => (
-                    <Carte key={record.id} record={record} colonnes={colonnes} colInfos={colInfos} onClick={() => setSelected(record)} />
+                    <Carte key={record.id} record={record} colonnes={colonnes} colInfos={colInfos} forces={champsVisibles} onClick={() => setSelected(record)} />
                 ))}
             </div>
 
@@ -19,7 +19,7 @@ export function Galerie({ records, colonnes, colInfos }) {
                         <SheetTitle>Détail</SheetTitle>
                     </SheetHeader>
                     <div className="flex-1 overflow-y-auto pr-4 -mr-4 pb-8">
-                        {selected && <Carte record={selected} colonnes={colonnes} colInfos={colInfos} isDetail={true} />}
+                        {selected && <Carte record={selected} colonnes={colonnes} colInfos={colInfos} forces={champsVisibles} isDetail={true} />}
                     </div>
                 </SheetContent>
             </Sheet>
